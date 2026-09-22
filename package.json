@@ -11,7 +11,7 @@
   },
   "scripts": {
     "check": "eidos-plugin check .",
-    "test": "node --experimental-strip-types --test core.test.ts settings.test.mjs",
+    "test": "node --experimental-strip-types --test src/core.test.ts src/settings.test.mjs",
     "pack:plugin": "node scripts/pack.mjs"
   },
   "devDependencies": {

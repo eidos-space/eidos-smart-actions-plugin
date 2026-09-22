@@ -107,6 +107,9 @@ CLI Serve 尚不支持所需的动作和配置接口。插件 API 契约版本�
 
 ## 开发
 
+源码与对应测试放在 `src/` 中，`plugin.json` 声明扩展和配置界面的入口。
+构建与冒烟测试脚本放在 `scripts/` 中。
+
 ```sh
 npm ci
 npm run check

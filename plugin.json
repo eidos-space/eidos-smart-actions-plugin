@@ -7,12 +7,12 @@
   "icon": {
     "paths": ["M12 3v4m0 10v4M3 12h4m10 0h4M6 6l3 3m6 6 3 3M6 18l3-3m6-6 3-3"]
   },
-  "extension": "./extension.ts",
+  "extension": "./src/extension.ts",
   "views": [
     {
       "id": "configure",
       "title": "Smart Actions",
-      "entry": "./settings.ts",
+      "entry": "./src/settings.ts",
       "context": "eidos",
       "access": "write"
     }

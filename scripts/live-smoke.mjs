@@ -1,6 +1,6 @@
 import { createInterface } from "node:readline/promises"
 import { writeFile } from "node:fs/promises"
-import { decodeAnswers } from "../core.ts"
+import { decodeAnswers } from "../src/core.ts"
 const input = createInterface({
   input: process.stdin,
   output: process.stdout,

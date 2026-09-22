@@ -134,6 +134,9 @@ Generation-provider charges are separate, and undo does not reverse charges.
 
 ## Development
 
+Source code and co-located tests live in `src/`. `plugin.json` declares the
+extension and settings entry points; build and smoke-test scripts live in `scripts/`.
+
 ```sh
 npm ci
 npm run check
