@@ -1,0 +1,6 @@
+node_modules/
+dist/
+VERIFICATION.md
+.env
+.env.*
+.DS_Store

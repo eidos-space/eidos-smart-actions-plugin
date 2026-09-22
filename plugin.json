@@ -1,0 +1,43 @@
+{
+  "apiVersion": 1,
+  "requires": { "pluginApi": "1.1.0" },
+  "id": "eidos.smart-actions",
+  "name": "Smart Actions",
+  "version": "0.1.0",
+  "icon": {
+    "paths": ["M12 3v4m0 10v4M3 12h4m10 0h4M6 6l3 3m6 6 3 3M6 18l3-3m6-6 3-3"]
+  },
+  "extension": "./extension.ts",
+  "views": [
+    {
+      "id": "configure",
+      "title": "Smart Actions",
+      "entry": "./settings.ts",
+      "context": "eidos",
+      "access": "write"
+    }
+  ],
+  "actions": [
+    {
+      "id": "smart-actions",
+      "title": "Smart Actions",
+      "context": "table",
+      "access": "write"
+    }
+  ],
+  "placements": [
+    { "location": "table/context", "action": "smart-actions" },
+    { "location": "file/open", "view": "configure", "extensions": [".eidos"] }
+  ],
+  "connections": {
+    "action-generator": {
+      "title": "Action Generator",
+      "url": "https://api.openai.com/v1/chat/completions",
+      "configurable": true
+    },
+    "typesafe-default": {
+      "title": "TypeSafe AI",
+      "url": "https://api.typesafe.ai/v1/systemone"
+    }
+  }
+}

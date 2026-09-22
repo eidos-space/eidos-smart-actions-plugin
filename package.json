@@ -1,0 +1,23 @@
+{
+  "name": "@eidos.space/plugin-smart-actions",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "description": "Use Jev to classify, score and assess records in Eidos Lite.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eidos-space/eidos-smart-actions-plugin.git"
+  },
+  "scripts": {
+    "check": "eidos-plugin check .",
+    "test": "node --experimental-strip-types --test core.test.ts settings.test.mjs",
+    "pack:plugin": "node scripts/pack.mjs"
+  },
+  "devDependencies": {
+    "@eidos.space/plugin-sdk": "0.2.0",
+    "@eidos.space/plugin-tools": "0.2.0",
+    "esbuild": "0.28.1",
+    "jsdom": "^26.1.0"
+  }
+}
