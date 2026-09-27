@@ -1,10 +1,5 @@
-Use Jev to classify requests, assess urgency and score feedback, then write the results to your `.eidos` table.
+# Smart Actions 0.2.0
 
-- Configure reusable actions in a dedicated workspace, with input fields, judgment rules and output fields arranged as a flow.
-- Reuse Select field options for classification, or configure scoring, probability and yes/no judgments.
-- Run actions on selected records or the current filtered set. Follow progress and estimated execution cost, stop processing, and undo or redo completed changes within the current session.
-- Optionally configure a Chat Completions model to generate editable action drafts from a description.
+Smart Actions now supports Eidos Lite 0.19.0 and plugin API 2.0. Its configuration view uses the current Eidos File binding while existing action definitions and table configuration remain in the file.
 
-Requires **Eidos Lite 0.17.0 or later** with plugin API 1.1.0 support, plus a TypeSafe AI API key for Jev. CLI Serve does not support this plugin yet.
-
-Download the `.eidos-plugin` asset, drag it onto Lite's Plugins page, and enable it for your Space. See the [setup guide](https://github.com/eidos-space/eidos-smart-actions-plugin#install-and-connect).
+Install the new `.eidos-plugin` package over the previous version, then open a table to use your saved actions. This version requires Eidos Lite 0.19.0 or later; CLI Serve does not support Smart Actions.

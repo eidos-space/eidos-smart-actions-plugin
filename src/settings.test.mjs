@@ -68,7 +68,7 @@ test("AI generation requires configuration and creates only an editable unsaved 
     },
   }
   const root = document.querySelector("#root")
-  const mounted = await mount({ binding: { kind: "eidos", file } }, root)
+  const mounted = await mount({ eidos: file }, root)
   assert.equal(root.querySelector('select[aria-label="选择动作"]'), null)
   assert.equal(root.querySelector("footer"), null)
   assert.match(root.textContent, /创建第一个动作/)
@@ -137,9 +137,7 @@ test("file editor preserves drafts across tables and saves only the selected tab
   const root = document.querySelector("#root")
   const writes = []
   const context = {
-    binding: {
-      kind: "eidos",
-      file: {
+    eidos: {
         listTables: async () => [
           { id: "a", name: "Requests" },
           { id: "b", name: "Books" },
@@ -160,7 +158,6 @@ test("file editor preserves drafts across tables and saves only the selected tab
           writes.push({ id, input })
           return { version: "new" }
         },
-      },
     },
   }
   const mounted = await mount(context, root)

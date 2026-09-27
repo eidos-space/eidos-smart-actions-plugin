@@ -1,9 +1,9 @@
 {
   "apiVersion": 1,
-  "requires": { "pluginApi": "1.1.0" },
+  "requires": { "pluginApi": "2.0.0" },
   "id": "eidos.smart-actions",
   "name": "Smart Actions",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "icon": {
     "paths": ["M12 3v4m0 10v4M3 12h4m10 0h4M6 6l3 3m6 6 3 3M6 18l3-3m6-6 3-3"]
   },
@@ -13,7 +13,7 @@
       "id": "configure",
       "title": "Smart Actions",
       "entry": "./src/settings.ts",
-      "context": "eidos",
+      "context": "file",
       "access": "write"
     }
   ],

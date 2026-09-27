@@ -21,10 +21,10 @@
 
 ## 使用前准备
 
-Smart Actions 要求插件 API **1.1.0**，安装包使用格式 2，旧客户端需要先升级。
+Smart Actions 0.2.0 要求插件 API **2.0.0**，安装包使用格式 2，旧客户端需要先升级。
 CLI Serve 尚不支持所需的动作和配置接口。插件 API 契约版本与 npm SDK 版本独立。
 
-- **Eidos Lite 0.17.0 或更新版本**，支持插件 API 1.1.0。
+- **Eidos Lite 0.19.0 或更新版本**，支持插件 API 2.0.0。
 - 用于访问 Jev 的 TypeSafe AI API Key。
 - 一个已有数据表及所需输入、输出字段的 `.eidos` 文件。
 

@@ -813,10 +813,10 @@ main,main.empty-state,main.generator-state{grid-template-columns:var(--smart-sid
   }
 }
 const mount: Mount = async (ctx, root) => {
-  if (ctx.binding.kind !== "eidos")
+  if (!ctx.eidos)
     throw new Error("使用 Smart Actions 打开一个 .eidos 文件")
-  const file = ctx.binding.file
-  const tables = await file.listTables()
+  const eidos: EidosFileContext = ctx.eidos
+  const tables = await eidos.listTables()
   // Table navigation lives next to its actions in the persistent sidebar.
   const panels = new Map<string, HTMLElement>()
   let sidebarWidth = 220
@@ -839,13 +839,13 @@ const mount: Mount = async (ctx, root) => {
         configureTable(
           panel,
           {
-            read: () => file.readTable(id),
+            read: () => eidos.readTable(id),
             pluginConfig: {
-              read: () => file.readPluginConfig(id),
-              write: (input) => file.writePluginConfig(id, input),
+              read: () => eidos.readPluginConfig(id),
+              write: (input) => eidos.writePluginConfig(id, input),
             },
           },
-          file.connections,
+          eidos.connections,
           {
             tables,
             current: id,
