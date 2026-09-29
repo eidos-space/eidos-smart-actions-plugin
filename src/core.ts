@@ -1,7 +1,7 @@
 import type {
   TableActionContext,
   TableActionRecord,
-  TableViewSnapshot,
+  EidosTableSnapshot,
 } from "@eidos.space/plugin-sdk"
 import { actionIcons, type ActionIcon } from "./icons.ts"
 import { createUsageTotals } from "./usage.ts"
@@ -112,7 +112,7 @@ export function parseConfig(value: unknown): Config {
   return structuredClone(c) as unknown as Config
 }
 export function fieldChoices(
-  field: TableViewSnapshot["fields"][number]
+  field: EidosTableSnapshot["fields"][number]
 ): string[] {
   const options = field.property?.options
   if (!Array.isArray(options)) return []
@@ -130,7 +130,7 @@ export function fieldChoices(
 
 export function resolveAction(
   action: SmartAction,
-  fields: TableViewSnapshot["fields"]
+  fields: EidosTableSnapshot["fields"]
 ): SmartAction {
   const resolved = structuredClone(action)
   for (const output of resolved.outputs) {
@@ -292,10 +292,10 @@ async function delay(ms: number, signal: AbortSignal) {
   })
 }
 export async function runAction(ctx: TableActionContext, itemId: string) {
-  const config = parseConfig((await ctx.table.pluginConfig.read()).value)
+  const config = parseConfig((await ctx.capabilities.eidos.config.read(ctx.capabilities.eidos.table.tableId)).value)
   const configured = config.actions.find((a) => a.id === itemId)
   if (!configured) throw new Error("Action no longer exists")
-  const { fields } = await ctx.table.read()
+  const { fields } = await ctx.capabilities.eidos.table.readContext()
   const action = resolveAction(configured, fields)
   const required = [
     ...new Set([...action.inputs, ...action.outputs.map((o) => o.fieldId)]),
@@ -323,7 +323,7 @@ export async function runAction(ctx: TableActionContext, itemId: string) {
     approved = false
   const usage = createUsageTotals()
   const report = () =>
-    ctx.task.report({
+    ctx.capabilities.task.report({
       completed: completed + skipped,
       message:
         [skipped ? `跳过 ${skipped} 条已删除记录` : "", usage.message()]
@@ -350,7 +350,7 @@ export async function runAction(ctx: TableActionContext, itemId: string) {
       ctx.signal.throwIfAborted()
       let received = false
       try {
-        const response = await ctx.connections.request({
+        const response = await ctx.capabilities.connections.request({
           connection: action.connection,
           body,
         })
@@ -372,14 +372,14 @@ export async function runAction(ctx: TableActionContext, itemId: string) {
       }
     }
   }
-  for (let offset = 0; offset < ctx.target.count; ) {
+  for (let offset = 0; offset < ctx.capabilities.target.count; ) {
     ctx.signal.throwIfAborted()
     // Bounded windows: at most 20 retained records, two network requests, one writer.
     const batches: TableActionRecord[][] = []
-    for (let batch = 0; batch < 2 && offset < ctx.target.count; batch++) {
+    for (let batch = 0; batch < 2 && offset < ctx.capabilities.target.count; batch++) {
       ctx.signal.throwIfAborted()
-      const limit = Math.min(10, ctx.target.count - offset)
-      const rows = await ctx.target.read({ offset, limit, fields: required })
+      const limit = Math.min(10, ctx.capabilities.target.count - offset)
+      const rows = await ctx.capabilities.target.readRows({ offset, limit, fields: required })
       skipped += limit - rows.length
       batches.push(rows)
       offset += limit
@@ -392,13 +392,13 @@ export async function runAction(ctx: TableActionContext, itemId: string) {
       return result.value
     })
     if (!approved && results.length) {
-      if (!(await ctx.task.preview(results.slice(0, 3)))) return
+      await ctx.capabilities.task.declareOutputs(results.slice(0, 3))
       ctx.signal.throwIfAborted()
       approved = true
     }
     for (const result of results) {
       ctx.signal.throwIfAborted()
-      await ctx.target.update(result)
+      await ctx.capabilities.target.update(result)
       completed++
       await report()
     }

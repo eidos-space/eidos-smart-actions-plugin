@@ -1,11 +1,15 @@
 {
   "apiVersion": 1,
-  "requires": { "pluginApi": "2.0.0" },
+  "requires": {
+    "pluginApi": "3.0.0"
+  },
   "id": "eidos.smart-actions",
   "name": "Smart Actions",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "icon": {
-    "paths": ["M12 3v4m0 10v4M3 12h4m10 0h4M6 6l3 3m6 6 3 3M6 18l3-3m6-6 3-3"]
+    "paths": [
+      "M12 3v4m0 10v4M3 12h4m10 0h4M6 6l3 3m6 6 3 3M6 18l3-3m6-6 3-3"
+    ]
   },
   "extension": "./src/extension.ts",
   "views": [
@@ -13,8 +17,12 @@
       "id": "configure",
       "title": "Smart Actions",
       "entry": "./src/settings.ts",
-      "context": "file",
-      "access": "write"
+      "access": "write",
+      "kind": "file",
+      "capabilities": [
+        "eidos/schema",
+        "eidos/config"
+      ]
     }
   ],
   "actions": [
@@ -26,8 +34,17 @@
     }
   ],
   "placements": [
-    { "location": "table/context", "action": "smart-actions" },
-    { "location": "file/open", "view": "configure", "extensions": [".eidos"] }
+    {
+      "location": "table/context",
+      "action": "smart-actions"
+    },
+    {
+      "location": "file/open",
+      "view": "configure",
+      "extensions": [
+        ".eidos"
+      ]
+    }
   ],
   "connections": {
     "action-generator": {

@@ -1,7 +1,8 @@
 import type {
   Mount,
-  EidosFileContext,
-  TablePluginConfig,
+  EidosSchema,
+  EidosConfig,
+  PluginConnections,
 } from "@eidos.space/plugin-sdk"
 import {
   parseConfig,
@@ -17,10 +18,10 @@ import { generateAction } from "./generator"
 async function configureTable(
   root: HTMLElement,
   table: {
-    read(): ReturnType<EidosFileContext["readTable"]>
-    pluginConfig: Pick<TablePluginConfig, "read" | "write">
+    read(): ReturnType<EidosSchema["readTable"]>
+    pluginConfig: { read(): ReturnType<EidosConfig["read"]>; write(input: Parameters<EidosConfig["write"]>[1]): ReturnType<EidosConfig["write"]> }
   },
-  connections: EidosFileContext["connections"],
+  connections: PluginConnections,
   navigation: {
     tables: Array<{ id: string; name: string }>
     current: string
@@ -288,7 +289,7 @@ main,main.empty-state,main.generator-state{grid-template-columns:var(--smart-sid
         render()
         if (generatorOpen)
           void connections
-            ?.configured("action-generator")
+            ?.isConfigured("action-generator")
             .then((configured) => {
               generatorConfigured = configured
               generationNotice = configured
@@ -813,10 +814,12 @@ main,main.empty-state,main.generator-state{grid-template-columns:var(--smart-sid
   }
 }
 const mount: Mount = async (ctx, root) => {
-  if (!ctx.eidos)
-    throw new Error("使用 Smart Actions 打开一个 .eidos 文件")
-  const eidos: EidosFileContext = ctx.eidos
-  const tables = await eidos.listTables()
+  const eidos = ctx.capabilities.eidos
+  if (!eidos?.schema || !eidos.config || !ctx.capabilities.connections) throw new Error("使用 Smart Actions 打开一个 .eidos 文件")
+  const schema = eidos.schema
+  const config = eidos.config
+  const connections = ctx.capabilities.connections
+  const tables = await schema.listTables()
   // Table navigation lives next to its actions in the persistent sidebar.
   const panels = new Map<string, HTMLElement>()
   let sidebarWidth = 220
@@ -839,13 +842,13 @@ const mount: Mount = async (ctx, root) => {
         configureTable(
           panel,
           {
-            read: () => eidos.readTable(id),
+            read: () => schema.readTable(id),
             pluginConfig: {
-              read: () => eidos.readPluginConfig(id),
-              write: (input) => eidos.writePluginConfig(id, input),
+              read: () => config.read(id),
+              write: (input) => config.write(id, input),
             },
           },
-          eidos.connections,
+          connections,
           {
             tables,
             current: id,

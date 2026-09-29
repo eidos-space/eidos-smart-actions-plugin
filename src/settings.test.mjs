@@ -39,7 +39,7 @@ test("AI generation requires configuration and creates only an editable unsaved 
       return { version: "new" }
     },
     connections: {
-      configured: async () => configured,
+      isConfigured: async () => configured,
       request: async (input) => {
         requests++
         assert.equal(input.connection, "action-generator")
@@ -68,7 +68,7 @@ test("AI generation requires configuration and creates only an editable unsaved 
     },
   }
   const root = document.querySelector("#root")
-  const mounted = await mount({ eidos: file }, root)
+  const mounted = await mount({ capabilities: { eidos: { schema: file, config: {read: file.readPluginConfig, write: file.writePluginConfig} }, connections: file.connections } }, root)
   assert.equal(root.querySelector('select[aria-label="选择动作"]'), null)
   assert.equal(root.querySelector("footer"), null)
   assert.match(root.textContent, /创建第一个动作/)
@@ -160,7 +160,7 @@ test("file editor preserves drafts across tables and saves only the selected tab
         },
     },
   }
-  const mounted = await mount(context, root)
+  const mounted = await mount({ capabilities: { eidos: { schema: context.eidos, config: {read: context.eidos.readPluginConfig, write: context.eidos.writePluginConfig} }, connections: { isConfigured: async () => false } } }, root)
   const flush = async () => {
     for (let n = 0; n < 12; n++) await Promise.resolve()
   }

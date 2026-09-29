@@ -24,11 +24,11 @@ do not generate free-form replies or summaries, create records, or add fields.
 
 ## Before you start
 
-Smart Actions 0.2.0 requires plugin API **2.0.0** and uses package format 2.
+Smart Actions 0.3.0 requires plugin API **3.0.0** and uses package format 2.
 Upgrade older clients first. CLI Serve does not yet support its action and
 configuration APIs. The plugin API contract is independent of the npm SDK version.
 
-- **Eidos Lite 0.19.0 or later**, with plugin API 2.0.0 support.
+- **Eidos Lite 0.20.0 or later**, with plugin API 3.0.0 support.
 - A TypeSafe AI API key to access Jev.
 - A `.eidos` table with the input and output fields you want to use.
 

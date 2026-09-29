@@ -1,4 +1,4 @@
-import type { TableViewSnapshot } from "@eidos.space/plugin-sdk"
+import type { EidosTableSnapshot } from "@eidos.space/plugin-sdk"
 import { actionIcons } from "./icons.ts"
 
 const text = (maxLength: number) => ({
@@ -15,7 +15,7 @@ const criteria = (maxItems: number) => ({
 })
 
 /** Restrict each output branch to an actual writable field and supported mapping. */
-export function actionDraftSchema(fields: TableViewSnapshot["fields"]) {
+export function actionDraftSchema(fields: EidosTableSnapshot["fields"]) {
   const branches = fields
     .filter((f) => !f.systemRole && !f.isDerived && f.writable !== false)
     .flatMap((field) => {

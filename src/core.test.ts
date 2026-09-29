@@ -187,7 +187,7 @@ test("generated drafts are validated and cannot select nonexistent or read-only 
   await assert.rejects(
     generateAction(
       {
-        configured: async () => false,
+        isConfigured: async () => false,
         request: async () => {
           requested = true
           return {}
@@ -208,7 +208,7 @@ test("generation retries explicit unsupported JSON mode once but does not retry 
   let calls = 0
   const result = await generateAction(
     {
-      configured: async () => true,
+      isConfigured: async () => true,
       request: async ({ body }) => {
         calls++
         if (calls === 1) {
@@ -253,7 +253,7 @@ test("generation retries explicit unsupported JSON mode once but does not retry 
     await assert.rejects(
       generateAction(
         {
-          configured: async () => true,
+          isConfigured: async () => true,
           request: async () => {
             attempts++
             throw new Error(message)
@@ -302,12 +302,12 @@ test("missing usage, unknown model and failed requests never appear as zero cost
 })
 test("run reports aggregated cost before completion", async () => {
   const f = fixture()
-  f.context.target.count = 20
+  f.context.capabilities.target.count = 20
   const messages: string[] = []
-  f.context.task.report = async ({ message }) => {
+  f.context.capabilities.task.report = async ({ message }) => {
     if (message) messages.push(message)
   }
-  f.context.connections.request = async ({ body }) => ({
+  f.context.capabilities.connections.request = async ({ body }) => ({
     ...batchResponse(body as ReturnType<typeof batchRequestBody>),
     model: "jev-1.13.0",
     usage: { input_tokens: 1000, output_tokens: 20 },
@@ -386,24 +386,26 @@ function fixture(preview = true) {
   const controller = new AbortController()
   const context = {
     signal: controller.signal,
-    table: {
-      pluginConfig: {
+    capabilities: {
+    eidos: {
+      config: {
         read: async () => ({
           value: { version: 1, actions: [action] },
           version: "1",
         }),
       },
-      read: async () => ({
+      table: { tableId: "table", viewId: "view",
+      readContext: async () => ({
         fields: [
           { id: "message", name: "Message", type: "text", writable: true },
           { id: "category", name: "Category", type: "text", writable: true },
           { id: "score", name: "Score", type: "number", writable: true },
         ],
       }),
-    },
+    } },
     target: {
       count: 5,
-      read: async ({ offset, limit }: { offset: number; limit: number }) =>
+      readRows: async ({ offset, limit }: { offset: number; limit: number }) =>
         Array.from({ length: limit }, (_, i) => ({
           id: String(offset + i),
           readToken: String(offset + i),
@@ -425,35 +427,35 @@ function fixture(preview = true) {
       },
     },
     task: {
-      preview: async () => {
+      declareOutputs: async () => {
         events.push("preview")
-        return preview
+        if (!preview) throw new Error("Invalid output samples")
       },
       report: async () => {},
+    },
     },
   } as unknown as TableActionContext
   return { context, events, updates, controller }
 }
 test("40 records use four requests, two concurrent, with serial ordered writes", async () => {
   const f = fixture()
-  f.context.target.count = 40
+  f.context.capabilities.target.count = 40
   let requests = 0,
     active = 0,
     peak = 0,
     writing = false
-  const write = f.context.target.update
-  f.context.target.update = async (input) => {
+  const write = f.context.capabilities.target.update
+  f.context.capabilities.target.update = async (input) => {
     assert.equal(writing, false)
     writing = true
     await new Promise((resolve) => setTimeout(resolve, 1))
     await write(input)
     writing = false
   }
-  f.context.task.preview = async (rows) => {
+  f.context.capabilities.task.declareOutputs = async (rows) => {
     assert.equal(rows.length, 3)
-    return true
   }
-  f.context.connections.request = async ({ body }) => {
+  f.context.capabilities.connections.request = async ({ body }) => {
     const batch = body as ReturnType<typeof batchRequestBody>
     assert.equal(batch.state.rows.length, 10)
     const index = requests++
@@ -518,10 +520,10 @@ test("batch payload isolates rows and rejects missing, extra and invalid answers
 
 test("failed sibling batch is drained without writing the window", async () => {
   const f = fixture()
-  f.context.target.count = 20
+  f.context.capabilities.target.count = 20
   let calls = 0,
     drained = false
-  f.context.connections.request = async ({ body }) => {
+  f.context.capabilities.connections.request = async ({ body }) => {
     if (++calls === 1) throw new Error("HTTP 500")
     await new Promise((resolve) => setTimeout(resolve, 5))
     drained = true
@@ -535,15 +537,15 @@ test("failed sibling batch is drained without writing the window", async () => {
 test("cancellation during inference or writing stops further writes", async () => {
   for (const duringWrite of [false, true]) {
     const f = fixture()
-    f.context.target.count = 20
+    f.context.capabilities.target.count = 20
     if (duringWrite) {
-      const write = f.context.target.update
-      f.context.target.update = async (input) => {
+      const write = f.context.capabilities.target.update
+      f.context.capabilities.target.update = async (input) => {
         await write(input)
         f.controller.abort()
       }
     } else {
-      f.context.connections.request = async ({ body }) => {
+      f.context.capabilities.connections.request = async ({ body }) => {
         f.controller.abort()
         return batchResponse(body as ReturnType<typeof batchRequestBody>)
       }
@@ -555,23 +557,23 @@ test("cancellation during inference or writing stops further writes", async () =
 
 test("partial final batches and deleted records retain frozen offsets and progress", async () => {
   const f = fixture()
-  f.context.target.count = 23
-  const read = f.context.target.read
+  f.context.capabilities.target.count = 23
+  const read = f.context.capabilities.target.readRows
   const offsets: number[] = [],
     sizes: number[] = [],
     progress: number[] = []
-  f.context.target.read = async (input) => {
+  f.context.capabilities.target.readRows = async (input) => {
     offsets.push(input.offset)
     return (await read(input)).filter(
       (row) => Number(row.id) >= 10 && Number(row.id) !== 21
     )
   }
-  f.context.connections.request = async ({ body }) => {
+  f.context.capabilities.connections.request = async ({ body }) => {
     const batch = body as ReturnType<typeof batchRequestBody>
     sizes.push(batch.state.rows.length)
     return batchResponse(batch)
   }
-  f.context.task.report = async ({ completed }) => {
+  f.context.capabilities.task.report = async ({ completed }) => {
     progress.push(completed)
   }
   await runAction(f.context, "classify")
@@ -583,15 +585,15 @@ test("partial final batches and deleted records retain frozen offsets and progre
 
 test("large inputs split under the host byte limit without truncation", async () => {
   const f = fixture()
-  const read = f.context.target.read
+  const read = f.context.capabilities.target.readRows
   const text = "测".repeat(100_000)
-  f.context.target.read = async (input) =>
+  f.context.capabilities.target.readRows = async (input) =>
     (await read(input)).map((row) => ({
       ...row,
       values: { ...row.values, message: text },
     }))
   const sizes: number[] = []
-  f.context.connections.request = async ({ body }) => {
+  f.context.capabilities.connections.request = async ({ body }) => {
     assert.ok(
       new TextEncoder().encode(JSON.stringify(body)).byteLength <= 1024 * 1024
     )
@@ -607,9 +609,9 @@ test("large inputs split under the host byte limit without truncation", async ()
 
 test("all deleted records complete progress without model requests", async () => {
   const f = fixture()
-  f.context.target.read = async () => []
+  f.context.capabilities.target.readRows = async () => []
   let completed = 0
-  f.context.task.report = async (report) => {
+  f.context.capabilities.task.report = async (report) => {
     completed = report.completed
   }
   await runAction(f.context, "classify")
@@ -622,24 +624,24 @@ test("authorizes up to three samples and writes all records from one batch", asy
   assert.deepEqual(f.events.slice(0, 2), ["request", "preview"])
   assert.equal(f.updates.length, 5)
 })
-test("declined preview, cancellation and malformed output never write", async () => {
+test("rejected output declaration, cancellation and malformed output never write", async () => {
   const declined = fixture(false)
-  await runAction(declined.context, "classify")
+  await assert.rejects(runAction(declined.context, "classify"), /Invalid output samples/)
   assert.equal(declined.updates.length, 0)
   const cancelled = fixture()
   cancelled.controller.abort()
   await assert.rejects(() => runAction(cancelled.context, "classify"))
   assert.equal(cancelled.updates.length, 0)
   const bad = fixture()
-  bad.context.connections.request = async () => ({ answers: {} })
+  bad.context.capabilities.connections.request = async () => ({ answers: {} })
   await assert.rejects(() => runAction(bad.context, "classify"))
   assert.equal(bad.updates.length, 0)
 })
 
 test("single-select uses current field options without storing a duplicate catalog", async () => {
   const f = fixture()
-  const read = f.context.table.read
-  f.context.table.read = async () => {
+  const read = f.context.capabilities.eidos.table.readContext
+  f.context.capabilities.eidos.table.readContext = async () => {
     const snapshot = await read()
     snapshot.fields[1] = {
       ...snapshot.fields[1],
@@ -650,11 +652,11 @@ test("single-select uses current field options without storing a duplicate catal
   }
   const config = structuredClone(action)
   delete config.outputs[0].criteria
-  f.context.table.pluginConfig.read = async () => ({
+  f.context.capabilities.eidos.config.read = async () => ({
     value: { version: 1, actions: [config] },
     version: "1",
   })
-  f.context.connections.request = async (input) => {
+  f.context.capabilities.connections.request = async (input) => {
     const body = input.body as ReturnType<typeof batchRequestBody>
     assert.deepEqual(body.questions.r0_o0.criteria, {
       billing: null,
@@ -665,7 +667,7 @@ test("single-select uses current field options without storing a duplicate catal
   await runAction(f.context, "classify")
   assert.equal(f.updates.length, 5)
   assert.equal(config.outputs[0].criteria, undefined)
-  const { fields } = await f.context.table.read()
+  const { fields } = await f.context.capabilities.eidos.table.readContext()
   const resolved = resolveAction(action, fields)
   assert.deepEqual(resolved.outputs[0].criteria, ["billing", "sales"])
   assert.throws(() =>
@@ -685,8 +687,8 @@ test("invalid single-select options fail before any API request or write", async
     [{ name: "same" }, { name: "same" }],
   ]) {
     const f = fixture()
-    const read = f.context.table.read
-    f.context.table.read = async () => {
+    const read = f.context.capabilities.eidos.table.readContext
+    f.context.capabilities.eidos.table.readContext = async () => {
       const snapshot = await read()
       snapshot.fields[1] = {
         ...snapshot.fields[1],

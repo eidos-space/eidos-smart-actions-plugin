@@ -1,5 +1,5 @@
-# Smart Actions 0.2.0
+# Smart Actions 0.3.0
 
-Smart Actions now supports Eidos Lite 0.19.0 and plugin API 2.0. Its configuration view uses the current Eidos File binding while existing action definitions and table configuration remain in the file.
+Requires Eidos Lite 0.20.0 or later and Plugin API 3. Update Lite before installing this package.
 
-Install the new `.eidos-plugin` package over the previous version, then open a table to use your saved actions. This version requires Eidos Lite 0.19.0 or later; CLI Serve does not support Smart Actions.
+Action configuration now uses Eidos schema and configuration capabilities; record processing uses lifecycle-bound action handles. Existing saved actions and table configuration keep their plugin namespace. CLI Serve is not supported.

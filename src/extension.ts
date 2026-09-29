@@ -2,9 +2,9 @@ import type { Activate } from "@eidos.space/plugin-sdk"
 import { parseConfig, runAction } from "./core"
 import { iconDefinition } from "./icons"
 const activate: Activate = (ctx) => {
-  ctx.actions.registerTableProvider("smart-actions", {
-    async getItems({ table }) {
-      return parseConfig((await table.pluginConfig.read()).value).actions.map(
+  ctx.capabilities.actions.registerTableProvider("smart-actions", {
+    async getItems({ capabilities: { eidos: { table, config } } }) {
+      return parseConfig((await config.read(table.tableId)).value).actions.map(
         (a) => ({
           id: a.id,
           title: a.title,

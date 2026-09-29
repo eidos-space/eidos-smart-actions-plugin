@@ -1,6 +1,6 @@
 import type {
-  EidosFileContext,
-  TableViewSnapshot,
+  PluginConnections,
+  EidosTableSnapshot,
 } from "@eidos.space/plugin-sdk"
 import { parseConfig, resolveAction, type SmartAction } from "./core.ts"
 import {
@@ -11,7 +11,7 @@ import {
 
 export function generationBody(
   requirement: string,
-  fields: TableViewSnapshot["fields"]
+  fields: EidosTableSnapshot["fields"]
 ) {
   if (!requirement.trim() || requirement.length > 8000)
     throw new Error("请输入 1–8000 字符的需求")
@@ -41,7 +41,7 @@ export function generationBody(
 
 export function generatedAction(
   response: unknown,
-  fields: TableViewSnapshot["fields"]
+  fields: EidosTableSnapshot["fields"]
 ): SmartAction {
   const content = (
     response as { choices?: Array<{ message?: { content?: unknown } }> }
@@ -119,11 +119,11 @@ export function generatedAction(
 }
 
 export async function generateAction(
-  connections: EidosFileContext["connections"],
+  connections: PluginConnections,
   requirement: string,
-  fields: TableViewSnapshot["fields"]
+  fields: EidosTableSnapshot["fields"]
 ) {
-  if (!(await connections.configured("action-generator")))
+  if (!(await connections.isConfigured("action-generator")))
     throw new Error(
       "请先到插件设置配置 Action Generator 的 Endpoint、API Key 和模型"
     )
