@@ -3,7 +3,7 @@
 Use **Jev** to classify requests, assess urgency and score feedback—then write
 the results back to your `.eidos` file.
 
-[简体中文](README.zh-CN.md)
+[Chinese](README.zh-CN.md)
 
 **Select inputs → define rules → choose output fields.**
 
@@ -24,11 +24,11 @@ do not generate free-form replies or summaries, create records, or add fields.
 
 ## Before you start
 
-Smart Actions 0.3.0 requires plugin API **3.0.0** and uses package format 2.
+Smart Actions 0.4.0 requires plugin API **3.7.0** and uses package format 3.
 Upgrade older clients first. CLI Serve does not yet support its action and
 configuration APIs. The plugin API contract is independent of the npm SDK version.
 
-- **Eidos Lite 0.20.0 or later**, with plugin API 3.0.0 support.
+- **Eidos Lite 0.29.0 or later**, with plugin API 3.7.0 support.
 - A TypeSafe AI API key to access Jev.
 - A `.eidos` table with the input and output fields you want to use.
 
@@ -43,7 +43,7 @@ An additional generation model is optional; manual configuration does not need i
 
 ## Create an action
 
-Select a table in the sidebar, then **＋ 新建动作 → 手动创建**.
+Select a table in the sidebar, then **＋ New action → Create manually**.
 
 1. **Inputs:** select the fields the action should read.
 2. **Outputs:** add a destination and choose an existing writable field.
@@ -64,7 +64,7 @@ Configure **Plugins → Smart Actions → Settings → Action Generator** with:
 - The provider's model ID.
 - An API key for that endpoint.
 
-Choose **＋ 新建动作 → 用 AI 生成动作** and describe the result you want:
+Choose **＋ New action → Generate with AI** and describe the result you want:
 
 > Classify each customer message using Category's existing options, and put the
 > probability that it needs immediate attention in Urgency.

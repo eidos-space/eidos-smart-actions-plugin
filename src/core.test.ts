@@ -1,3 +1,4 @@
+import { testI18n } from "../test-i18n.mjs"
 import { test } from "node:test"
 import assert from "node:assert/strict"
 import { createUsageTotals } from "./usage.ts"
@@ -385,6 +386,7 @@ function fixture(preview = true) {
     updates: unknown[] = []
   const controller = new AbortController()
   const context = {
+    i18n: testI18n(),
     signal: controller.signal,
     capabilities: {
     eidos: {

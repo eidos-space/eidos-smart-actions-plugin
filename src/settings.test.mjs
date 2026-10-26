@@ -2,6 +2,7 @@ import { test } from "node:test"
 import assert from "node:assert/strict"
 import { build } from "esbuild"
 import { JSDOM } from "jsdom"
+import { testI18n } from "../test-i18n.mjs"
 
 test("AI generation requires configuration and creates only an editable unsaved draft", async () => {
   const dom = new JSDOM('<div id="root"></div>')
@@ -68,7 +69,7 @@ test("AI generation requires configuration and creates only an editable unsaved 
     },
   }
   const root = document.querySelector("#root")
-  const mounted = await mount({ capabilities: { eidos: { schema: file, config: {read: file.readPluginConfig, write: file.writePluginConfig} }, connections: file.connections } }, root)
+  const mounted = await mount({ i18n: testI18n(), capabilities: { eidos: { schema: file, config: {read: file.readPluginConfig, write: file.writePluginConfig} }, connections: file.connections } }, root)
   assert.equal(root.querySelector('select[aria-label="选择动作"]'), null)
   assert.equal(root.querySelector("footer"), null)
   assert.match(root.textContent, /创建第一个动作/)
@@ -160,7 +161,8 @@ test("file editor preserves drafts across tables and saves only the selected tab
         },
     },
   }
-  const mounted = await mount({ capabilities: { eidos: { schema: context.eidos, config: {read: context.eidos.readPluginConfig, write: context.eidos.writePluginConfig} }, connections: { isConfigured: async () => false } } }, root)
+  const i18n = testI18n()
+  const mounted = await mount({ i18n, capabilities: { eidos: { schema: context.eidos, config: {read: context.eidos.readPluginConfig, write: context.eidos.writePluginConfig} }, connections: { isConfigured: async () => false } } }, root)
   const flush = async () => {
     for (let n = 0; n < 12; n++) await Promise.resolve()
   }
@@ -182,6 +184,13 @@ test("file editor preserves drafts across tables and saves only the selected tab
   prompt.dispatchEvent(new dom.window.Event("input"))
   assert.match(visible().textContent, /使用字段的 2 个选项/)
   assert.match(visible().textContent, /billing、sales/)
+  i18n.setLocale("en")
+  assert.equal(visible().querySelector("article input").value, "Classify requests")
+  assert.equal(visible().querySelector("textarea").value, "Choose the department")
+  assert.match(visible().textContent, /billing/)
+  assert.ok([...visible().querySelectorAll("button")].some(button => button.textContent === "Save"))
+  assert.equal(writes.length, 0)
+  i18n.setLocale("zh-CN")
   assert.doesNotMatch(visible().textContent, /类别（每行一个）/)
   click("Requests")
   assert.equal(visible().querySelector(".action-list").hidden, true)
