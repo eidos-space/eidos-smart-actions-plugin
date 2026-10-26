@@ -2,7 +2,7 @@
 // Use the response's versioned model, never assume an alias keeps its price.
 const inputUsdPerMillion: Record<string, number> = { "jev-1.13.0": 0.042 }
 
-export function createUsageTotals() {
+export function createUsageTotals(t?: (key: string, values?: Record<string, string | number>) => string) {
   let cost = 0
   let responses = 0
   let incomplete = false
@@ -31,10 +31,10 @@ export function createUsageTotals() {
     },
     message() {
       if (!responses && !incomplete) return ""
-      if (incomplete) return "预估费用不可用（用量或价格信息不完整）"
+      if (incomplete) return t?.("ui.costUnavailable") ?? "预估费用不可用（用量或价格信息不完整）"
       const amount =
         cost > 0 && cost < 0.000001 ? "< $0.000001" : `$${cost.toFixed(6)}`
-      return `预估费用 ${amount} USD`
+      return t?.("ui.costEstimate", { amount }) ?? `预估费用 ${amount} USD`
     },
   }
 }

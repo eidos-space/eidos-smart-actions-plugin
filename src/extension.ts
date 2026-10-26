@@ -1,6 +1,7 @@
 import type { Activate } from "@eidos.space/plugin-sdk"
 import { parseConfig, runAction } from "./core"
 import { iconDefinition } from "./icons"
+import { localizeError } from "./errors"
 const activate: Activate = (ctx) => {
   ctx.capabilities.actions.registerTableProvider("smart-actions", {
     async getItems({ capabilities: { eidos: { table, config } } }) {
@@ -13,7 +14,10 @@ const activate: Activate = (ctx) => {
         })
       )
     },
-    run: runAction,
+    async run(context, itemId) {
+      try { return await runAction(context, itemId) }
+      catch (error) { throw new Error(localizeError(error, context.i18n)) }
+    },
   })
 }
 export default activate

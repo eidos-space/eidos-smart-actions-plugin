@@ -3,6 +3,7 @@ import type {
   EidosSchema,
   EidosConfig,
   PluginConnections,
+  PluginI18n,
 } from "@eidos.space/plugin-sdk"
 import {
   parseConfig,
@@ -14,6 +15,7 @@ import {
 } from "./core"
 import { actionIcons, iconElement, type ActionIcon } from "./icons"
 import { generateAction } from "./generator"
+import { localizeError } from "./errors"
 
 async function configureTable(
   root: HTMLElement,
@@ -22,6 +24,7 @@ async function configureTable(
     pluginConfig: { read(): ReturnType<EidosConfig["read"]>; write(input: Parameters<EidosConfig["write"]>[1]): ReturnType<EidosConfig["write"]> }
   },
   connections: PluginConnections,
+  i18n: PluginI18n,
   navigation: {
     tables: Array<{ id: string; name: string }>
     current: string
@@ -30,6 +33,7 @@ async function configureTable(
     resize(width: number): number
   }
 ) {
+  const t = i18n.t
   const [snapshot, stored] = await Promise.all([
     table.read(),
     table.pluginConfig.read(),
@@ -133,8 +137,8 @@ main,main.empty-state,main.generator-state{grid-template-columns:var(--smart-sid
     id: crypto.randomUUID(),
     fieldId: "",
     type: "choice",
-    instructions: "判断记录所属的类别",
-    criteria: ["相关", "不相关"],
+    instructions: t("ui.classifyInstruction"),
+    criteria: [t("ui.relevant"), t("ui.irrelevant")],
   })
   let collapsed = false
   const render = () => {
@@ -144,12 +148,12 @@ main,main.empty-state,main.generator-state{grid-template-columns:var(--smart-sid
       article = element("article")
     main.append(nav, article)
     surface.append(main)
-    nav.setAttribute("aria-label", "数据表与动作")
+    nav.setAttribute("aria-label", t("ui.tablesActions"))
     const handle = element("div")
     handle.className = "sidebar-resizer"
     handle.tabIndex = 0
     handle.setAttribute("role", "separator")
-    handle.setAttribute("aria-label", "调整侧栏宽度")
+    handle.setAttribute("aria-label", t("ui.resizeSidebar"))
     handle.setAttribute("aria-orientation", "vertical")
     handle.setAttribute("aria-valuemin", "160")
     handle.setAttribute("aria-valuemax", "420")
@@ -220,7 +224,7 @@ main,main.empty-state,main.generator-state{grid-template-columns:var(--smart-sid
       actionList.className = "action-list"
       actionList.hidden = collapsed
       for (const item of config.actions) {
-        const entry = button(item.title || "未命名动作", () => {
+        const entry = button(item.title || t("ui.untitledAction"), () => {
           generatorOpen = false
           selected = item.id
           render()
@@ -240,8 +244,8 @@ main,main.empty-state,main.generator-state{grid-template-columns:var(--smart-sid
     createOptions.className = "create-options"
     createOptions.setAttribute("popover", "auto")
     createOptions.setAttribute("role", "menu")
-    createOptions.setAttribute("aria-label", "新建动作")
-    const createTrigger = button("＋ 新建动作", () => {
+    createOptions.setAttribute("aria-label", t("ui.newAction"))
+    const createTrigger = button(t("ui.addAction"), () => {
       if (createOptions.matches(":popover-open")) {
         createOptions.hidePopover()
         return
@@ -284,7 +288,7 @@ main,main.empty-state,main.generator-state{grid-template-columns:var(--smart-sid
     createMenu.append(createTrigger, createOptions)
     nav.querySelector(".action-list")!.append(createMenu)
     createOptions.append(
-      button("用 AI 生成动作", () => {
+      button(t("ui.generateAction"), () => {
         generatorOpen = !generatorOpen
         render()
         if (generatorOpen)
@@ -294,7 +298,7 @@ main,main.empty-state,main.generator-state{grid-template-columns:var(--smart-sid
               generatorConfigured = configured
               generationNotice = configured
                 ? ""
-                : "请先到 插件 → Smart Actions → 设置 配置 Action Generator 的 Endpoint、API Key 和模型，再重新打开此入口。"
+                : t("ui.configureGenerator")
               render()
             })
             .catch((error: unknown) => {
@@ -302,11 +306,11 @@ main,main.empty-state,main.generator-state{grid-template-columns:var(--smart-sid
               render()
             })
       }),
-      button("手动创建", () => {
+      button(t("ui.createManually"), () => {
         generatorOpen = false
         const action: SmartAction = {
           id: crypto.randomUUID(),
-          title: "新动作",
+          title: t("ui.newActionName"),
           icon: "sparkles",
           inputs: fields
             .filter((f) => f.type === "text")
@@ -331,24 +335,24 @@ main,main.empty-state,main.generator-state{grid-template-columns:var(--smart-sid
     )
     if (generatorOpen) {
       main.className = "generator-state"
-      article.append(element("h2", "用自然语言生成动作"))
+      article.append(element("h2", t("ui.generateTitle")))
       article.append(
         element(
           "small",
-          "仅发送当前表的字段结构和你的需求，不发送记录内容。生成后可修改，保存前不会生效。"
+          t("ui.generationPrivacy")
         )
       )
       const prompt = element("textarea")
-      prompt.setAttribute("aria-label", "动作需求")
-      prompt.placeholder = "例如：根据消息给客户请求分类，并判断紧急程度"
+      prompt.setAttribute("aria-label", t("ui.requirement"))
+      prompt.placeholder = t("ui.requirementExample")
       prompt.value = requirement
       prompt.maxLength = 8000
       prompt.disabled = generating
       prompt.oninput = () => {
         requirement = prompt.value
       }
-      article.append(label("你想让这个动作做什么？", prompt))
-      const generate = button(generating ? "正在生成…" : "生成草稿", () => {
+      article.append(label(t("ui.requirementLabel"), prompt))
+      const generate = button(generating ? t("ui.generating") : t("ui.generateDraft"), () => {
         if (generating) return
         generating = true
         generationNotice = ""
@@ -356,14 +360,14 @@ main,main.empty-state,main.generator-state{grid-template-columns:var(--smart-sid
         void generateAction(connections, requirement, fields)
           .then((action) => {
             if (config.actions.length >= 50)
-              throw new Error("最多支持 50 个动作")
+              throw new Error(t("ui.actionLimit"))
             config.actions.push(action)
             if (action.outputs[0])
               selectedOutputs.set(action.id, action.outputs[0].id)
             selected = action.id
             dirty = true
             generatorOpen = false
-            notice = "已生成草稿，请检查字段和判断规则后保存。"
+            notice = "ui.draftReady"
           })
           .catch((error: unknown) => {
             generationNotice =
@@ -378,7 +382,7 @@ main,main.empty-state,main.generator-state{grid-template-columns:var(--smart-sid
       generate.disabled = generating || !generatorConfigured
       article.append(generate)
       if (generationNotice) {
-        const status = element("p", generationNotice)
+        const status = element("p", localizeError(generationNotice, i18n))
         status.setAttribute("role", "status")
         article.append(status)
       }
@@ -390,8 +394,8 @@ main,main.empty-state,main.generator-state{grid-template-columns:var(--smart-sid
       const empty = element("div")
       empty.className = "empty"
       empty.append(
-        element("h2", "创建第一个动作"),
-        element("p", "为当前数据表添加分类、评分或判断规则。")
+        element("h2", t("ui.createFirst")),
+        element("p", t("ui.emptyDescription"))
       )
       const actions = element("div")
       actions.className = "empty-actions"
@@ -407,16 +411,16 @@ main,main.empty-state,main.generator-state{grid-template-columns:var(--smart-sid
     } else {
       const iconPicker = element("div")
       iconPicker.className = "icon-picker"
-      iconPicker.setAttribute("aria-label", "动作图标")
+      iconPicker.setAttribute("aria-label", t("ui.actionIcon"))
       for (const [key, icon] of Object.entries(actionIcons)) {
-        const choice = button(icon.label, () => {
+        const choice = button(t("icon." + key), () => {
           action.icon = key as ActionIcon
           mark()
           render()
         })
         choice.textContent = ""
-        choice.title = icon.label
-        choice.setAttribute("aria-label", icon.label)
+        choice.title = t("icon." + key)
+        choice.setAttribute("aria-label", t("icon." + key))
         choice.setAttribute(
           "aria-pressed",
           String((action.icon ?? "sparkles") === key)
@@ -429,23 +433,23 @@ main,main.empty-state,main.generator-state{grid-template-columns:var(--smart-sid
       const icons = element("details")
       icons.className = "icon-menu"
       const iconTrigger = element("summary")
-      iconTrigger.setAttribute("aria-label", "选择动作图标")
-      iconTrigger.title = "选择动作图标"
+      iconTrigger.setAttribute("aria-label", t("ui.chooseIcon"))
+      iconTrigger.title = t("ui.chooseIcon")
       iconTrigger.append(iconElement(action.icon))
       icons.append(iconTrigger, iconPicker)
       const title = input(action.title, (v) => {
         action.title = v
         const node = surface.querySelector(".flow-route strong")
-        if (node) node.textContent = v || "未命名动作"
+        if (node) node.textContent = v || t("ui.untitledAction")
         const entry = surface.querySelector('nav button[aria-current="true"]')
         if (entry) {
           entry.replaceChildren(
             iconElement(action.icon),
-            document.createTextNode(v || "未命名动作")
+            document.createTextNode(v || t("ui.untitledAction"))
           )
         }
       })
-      title.setAttribute("aria-label", "动作名称")
+      title.setAttribute("aria-label", t("ui.actionName"))
       heading.append(icons, title)
       article.append(heading)
       const breadcrumb = element(
@@ -458,12 +462,10 @@ main,main.empty-state,main.generator-state{grid-template-columns:var(--smart-sid
       inputs.className = "input-summary"
       const inputSummary = element("summary")
       const refreshInputSummary = () => {
-        inputSummary.textContent = `读取 ${
-          fields
+        inputSummary.textContent = t("ui.readInputs", { fields: fields
             .filter((f) => action.inputs.includes(f.id))
             .map((f) => f.name)
-            .join("、") || "选择输入字段"
-        } · 修改`
+            .join("、") || t("ui.chooseInputs") })
       }
       refreshInputSummary()
       inputs.append(inputSummary)
@@ -480,12 +482,10 @@ main,main.empty-state,main.generator-state{grid-template-columns:var(--smart-sid
           refreshInputSummary()
           const mapping = surface.querySelector(".inspector>p")
           if (mapping)
-            mapping.textContent = `从 ${
-              fields
+            mapping.textContent = t("ui.mapping", { fields: fields
                 .filter((f) => action.inputs.includes(f.id))
                 .map((f) => f.name)
-                .join("、") || "所选输入字段"
-            } 读取 → 写入 ${surface.querySelector(".inspector h2")?.textContent || "待选择字段"}`
+                .join("、") || t("ui.selectedInputs"), field: surface.querySelector(".inspector h2")?.textContent || t("ui.chooseField") })
         }
         const item = element("label")
         item.className = "check"
@@ -494,18 +494,18 @@ main,main.empty-state,main.generator-state{grid-template-columns:var(--smart-sid
       }
       inputs.append(choices)
       article.append(inputs)
-      const outputHeading = element("h3", "写入字段")
-      outputHeading.append(element("small", `${action.outputs.length} 个输出`))
+      const outputHeading = element("h3", t("ui.outputField"))
+      outputHeading.append(element("small", t("ui.outputCount", { count: action.outputs.length })))
       article.append(outputHeading)
       const inspector = element("aside")
       inspector.className = "inspector"
-      inspector.setAttribute("aria-label", "输出设置")
+      inspector.setAttribute("aria-label", t("ui.outputSettings"))
       main.append(inspector)
       const activeOutput =
         action.outputs.find((o) => o.id === selectedOutputs.get(action.id)) ??
         action.outputs[0]
       if (!activeOutput)
-        inspector.append(element("p", "添加一个输出，设置写入字段与判断规则。"))
+        inspector.append(element("p", t("ui.addOutputDescription")))
       for (const [index, output] of action.outputs.entries()) {
         const disclosure = button("", () => {
           selectedOutputs.set(action.id, output.id)
@@ -524,16 +524,16 @@ main,main.empty-state,main.generator-state{grid-template-columns:var(--smart-sid
         const summaryText = element("div")
         const outputField = outputs.find((f) => f.id === output.fieldId)
         summaryText.append(
-          element("strong", outputField?.name || "选择写入字段"),
+          element("strong", outputField?.name || t("ui.chooseOutput")),
           element(
             "span",
             output.type === "choice"
-              ? "分类"
+              ? t("ui.classification")
               : output.type === "score"
-                ? "评分"
+                ? t("ui.score")
                 : output.checkbox
-                  ? "是 / 否"
-                  : "概率"
+                  ? t("ui.boolean")
+                  : t("ui.probability")
           )
         )
         const description = element("small", output.instructions)
@@ -552,18 +552,18 @@ main,main.empty-state,main.generator-state{grid-template-columns:var(--smart-sid
         article.append(disclosure)
         if (activeOutput !== output) continue
         inspector.append(
-          element("h2", outputField?.name || "新输出"),
-          element("small", "输出设置")
+          element("h2", outputField?.name || t("ui.newOutput")),
+          element("small", t("ui.outputSettings"))
         )
         const group = element("fieldset")
         const row = element("div")
         row.className = "row"
         row.append(
           label(
-            "写入字段",
+            t("ui.outputField"),
             select(
               [
-                ["", "选择已有字段"],
+                ["", t("ui.existingField")],
                 ...outputs.map((f): [string, string] => [f.id, f.name]),
               ],
               output.fieldId,
@@ -579,8 +579,8 @@ main,main.empty-state,main.generator-state{grid-template-columns:var(--smart-sid
                 output.checkbox = field?.type === "checkbox"
                 output.criteria =
                   output.type === "choice"
-                    ? ["相关", "不相关"]
-                    : ["低", "中", "高"]
+                    ? [t("ui.relevant"), t("ui.irrelevant")]
+                    : [t("ui.low"), t("ui.medium"), t("ui.high")]
                 if (field?.type === "select") delete output.criteria
               }
             )
@@ -589,15 +589,15 @@ main,main.empty-state,main.generator-state{grid-template-columns:var(--smart-sid
         const field = outputs.find((f) => f.id === output.fieldId)
         row.append(
           label(
-            "判断类型",
+            t("ui.decisionType"),
             select(
               field?.type === "text" || field?.type === "select"
-                ? [["choice", "分类"]]
+                ? [["choice", t("ui.classification")]]
                 : field?.type === "checkbox"
-                  ? [["noul", "是 / 否"]]
+                  ? [["noul", t("ui.boolean")]]
                   : [
-                      ["score", "评分"],
-                      ["noul", "是的概率（0–1）"],
+                      ["score", t("ui.score")],
+                      ["noul", t("ui.trueProbability")],
                     ],
               output.type,
               (v) => {
@@ -609,7 +609,7 @@ main,main.empty-state,main.generator-state{grid-template-columns:var(--smart-sid
         group.append(
           row,
           label(
-            "判断规则",
+            t("ui.instructions"),
             input(
               output.instructions,
               (v) => {
@@ -625,10 +625,10 @@ main,main.empty-state,main.generator-state{grid-template-columns:var(--smart-sid
           const options = element("details")
           options.className = "field-options"
           options.append(
-            element("summary", `使用字段的 ${choices.length} 个选项`),
+            element("summary", t("ui.optionCount", { count: choices.length })),
             element(
               "p",
-              choices.length ? choices.join("、") : "请先在字段设置中添加选项。"
+              choices.length ? choices.join("、") : t("ui.addOptions")
             )
           )
           group.append(options)
@@ -637,8 +637,8 @@ main,main.empty-state,main.generator-state{grid-template-columns:var(--smart-sid
           group.append(
             label(
               output.type === "choice"
-                ? "类别（每行一个）"
-                : "评分等级（由低到高，每行一个；结果从 0 开始）",
+                ? t("ui.criteria")
+                : t("ui.scoreLevels"),
               input(
                 (output.criteria ?? []).join("\n"),
                 (v) => {
@@ -654,14 +654,14 @@ main,main.empty-state,main.generator-state{grid-template-columns:var(--smart-sid
         if (output.checkbox)
           group.append(
             label(
-              "勾选阈值（0–1）",
+              t("ui.threshold"),
               input(String(output.threshold ?? 0.5), (v) => {
                 output.threshold = Number(v)
               })
             )
           )
         group.append(
-          button("删除此输出", () => {
+          button(t("ui.deleteOutput"), () => {
             action.outputs.splice(index, 1)
             mark()
             render()
@@ -670,7 +670,7 @@ main,main.empty-state,main.generator-state{grid-template-columns:var(--smart-sid
         inspector.append(group)
       }
       article.append(
-        button("＋ 添加输出", () => {
+        button(t("ui.addOutput"), () => {
           const output = freshOutput()
           action.outputs.push(output)
           selectedOutputs.set(action.id, output.id)
@@ -680,10 +680,10 @@ main,main.empty-state,main.generator-state{grid-template-columns:var(--smart-sid
       )
       const advanced = element("details")
       advanced.className = "advanced"
-      advanced.append(element("summary", "高级设置"))
+      advanced.append(element("summary", t("ui.advanced")))
       advanced.append(
         label(
-          "模型",
+          t("ui.model"),
           input(action.model, (v) => {
             action.model = v
           })
@@ -694,24 +694,24 @@ main,main.empty-state,main.generator-state{grid-template-columns:var(--smart-sid
       graph.className = "flow-map"
       const inputPanel = element("div")
       inputPanel.className = "flow-input"
-      inputPanel.append(element("h3", "输入字段"), choices)
+      inputPanel.append(element("h3", t("ui.inputs")), choices)
       inputs.remove()
       const route = element("div")
       route.className = "flow-route"
       route.append(
         iconElement(action.icon),
-        element("strong", action.title || "未命名动作"),
-        element("small", `${action.outputs.length} 条独立判断规则`)
+        element("strong", action.title || t("ui.untitledAction")),
+        element("small", t("ui.ruleCount", { count: action.outputs.length }))
       )
       const outputPanel = element("div")
       outputPanel.className = "flow-output"
-      outputHeading.firstChild!.textContent = "输出字段"
+      outputHeading.firstChild!.textContent = t("ui.outputs")
       outputPanel.append(
         outputHeading,
         ...Array.from(article.querySelectorAll("button.output"))
       )
       const add = Array.from(article.children).find(
-        (el) => el.tagName === "BUTTON" && el.textContent === "＋ 添加输出"
+        (el) => el.tagName === "BUTTON" && el.textContent === t("ui.addOutput")
       )
       if (add) outputPanel.append(add)
       const arrow = () => {
@@ -725,23 +725,21 @@ main,main.empty-state,main.generator-state{grid-template-columns:var(--smart-sid
       inspector.prepend(
         element(
           "p",
-          `从 ${
-            fields
+          t("ui.mapping", { fields: fields
               .filter((f) => action.inputs.includes(f.id))
               .map((f) => f.name)
-              .join("、") || "所选输入字段"
-          } 读取 → 写入 ${outputs.find((f) => f.id === activeOutput?.fieldId)?.name || "待选择字段"}`
+              .join("、") || t("ui.selectedInputs"), field: outputs.find((f) => f.id === activeOutput?.fieldId)?.name || t("ui.chooseField") })
         )
       )
     }
     if (notice) {
-      const p = element("p", notice)
+      const p = element("p", notice.startsWith("ui.") ? t(notice) : localizeError(notice, i18n))
       p.className = "notice"
       p.setAttribute("role", "status")
       article.append(p)
     }
     const footer = element("footer")
-    const save = button("保存", () => {
+    const save = button(t("ui.save"), () => {
       void (async () => {
         try {
           const next = parseConfig(config)
@@ -764,7 +762,7 @@ main,main.empty-state,main.generator-state{grid-template-columns:var(--smart-sid
           version = result.version
           config = next
           dirty = false
-          notice = "已保存"
+          notice = "ui.saved"
           render()
         } catch (error) {
           notice = String(error)
@@ -776,12 +774,12 @@ main,main.empty-state,main.generator-state{grid-template-columns:var(--smart-sid
     const more = element("details")
     more.className = "more-menu"
     const moreTrigger = element("summary", "⋯")
-    moreTrigger.setAttribute("aria-label", "更多操作")
+    moreTrigger.setAttribute("aria-label", t("ui.more"))
     more.append(moreTrigger)
     footer.append(more, save)
     if (action)
       more.append(
-        button("删除动作", () => {
+        button(t("ui.deleteAction"), () => {
           config.actions = config.actions.filter((a) => a !== action)
           selected = config.actions[0]?.id
           mark()
@@ -789,33 +787,40 @@ main,main.empty-state,main.generator-state{grid-template-columns:var(--smart-sid
         })
       )
     more.append(
-      button("重新读取", () => {
+      button(t("ui.reload"), () => {
         void table.pluginConfig.read().then((saved) => {
           config = parseConfig(saved.value)
           version = saved.version
           selected = config.actions[0]?.id
           dirty = false
-          notice = "已重新读取"
+          notice = "ui.reloaded"
           render()
         })
       })
     )
     if (action) article.querySelector(".action-heading")!.append(footer)
     else if (dirty) {
-      footer.prepend(element("span", "删除尚未保存"))
+      footer.prepend(element("span", t("ui.deletionUnsaved")))
       article.prepend(footer)
     }
   }
+  const languageSubscription = i18n.onDidChangeLocale(() => {
+    const top = document.documentElement.scrollTop
+    render()
+    document.documentElement.scrollTop = top
+  })
   render()
   return {
     dispose() {
+      languageSubscription.dispose()
       root.replaceChildren()
     },
   }
 }
 const mount: Mount = async (ctx, root) => {
+  const t = ctx.i18n.t
   const eidos = ctx.capabilities.eidos
-  if (!eidos?.schema || !eidos.config || !ctx.capabilities.connections) throw new Error("使用 Smart Actions 打开一个 .eidos 文件")
+  if (!eidos?.schema || !eidos.config || !ctx.capabilities.connections) throw new Error(t("ui.fileRequired"))
   const schema = eidos.schema
   const config = eidos.config
   const connections = ctx.capabilities.connections
@@ -825,6 +830,7 @@ const mount: Mount = async (ctx, root) => {
   let sidebarWidth = 220
   root.style.setProperty("--smart-sidebar-width", `${sidebarWidth}px`)
   const loads = new Map<string, Promise<unknown>>()
+  const editors = new Set<{ dispose(): void }>()
   let alive = true
   let sequence = 0
   async function show(id: string) {
@@ -849,6 +855,7 @@ const mount: Mount = async (ctx, root) => {
             },
           },
           connections,
+          ctx.i18n,
           {
             tables,
             current: id,
@@ -872,10 +879,14 @@ const mount: Mount = async (ctx, root) => {
               void show(next)
             },
           }
-        ).catch((error: unknown) => {
-          target.textContent = String(error)
+        ).then((editor) => {
+          if (alive) editors.add(editor)
+          else editor.dispose()
+          return editor
+        }).catch((error: unknown) => {
+          target.textContent = localizeError(error, ctx.i18n)
           const retry = document.createElement("button")
-          retry.textContent = "重试"
+          retry.textContent = t("ui.retry")
           retry.onclick = () => {
             panels.delete(id)
             loads.delete(id)
@@ -895,12 +906,14 @@ const mount: Mount = async (ctx, root) => {
   if (tables[0]) await show(tables[0].id)
   else
     root.append(
-      document.createTextNode("此文件没有数据表。请先在默认编辑器中创建表。")
+      document.createTextNode(t("ui.noTables"))
     )
   return {
     dispose() {
       alive = false
       sequence++
+      for (const editor of editors) editor.dispose()
+      editors.clear()
       root.replaceChildren()
     },
   }

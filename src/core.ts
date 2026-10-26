@@ -321,12 +321,12 @@ export async function runAction(ctx: TableActionContext, itemId: string) {
   let completed = 0,
     skipped = 0,
     approved = false
-  const usage = createUsageTotals()
+  const usage = createUsageTotals(ctx.i18n.t)
   const report = () =>
     ctx.capabilities.task.report({
       completed: completed + skipped,
       message:
-        [skipped ? `跳过 ${skipped} 条已删除记录` : "", usage.message()]
+        [skipped ? ctx.i18n.t("ui.skippedDeleted", { count: skipped }) : "", usage.message()]
           .filter(Boolean)
           .join(" · ") || undefined,
     })
