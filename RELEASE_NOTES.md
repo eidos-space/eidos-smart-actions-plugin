@@ -1,7 +1,7 @@
 ## What's new
 
-- Add English and Simplified Chinese plugin names, descriptions and bundled documentation, selected using the host language.
-- Translate plugin controls and messages using the host's language API. User content, file paths and stored configuration values retain their original values.
+- Add a downloadable `.eidos` sample with a saved action, six practice requests and 40 reference results.
+- Add an English and Simplified Chinese quickstart and a downloadable copy of the sample's action configuration.
 
 ## Requirements
 

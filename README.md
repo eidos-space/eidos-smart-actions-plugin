@@ -10,6 +10,28 @@ the results back to your `.eidos` file.
 Create reusable actions by hand, or describe what you need and review an
 AI-generated draft. One action can read multiple fields and produce multiple results.
 
+## Try it with a sample
+
+[Download the Smart Actions sample (.eidos)](https://github.com/eidos-space/eidos-smart-actions-plugin/releases/download/v0.4.1/smart-actions-sample.eidos)
+
+The **Requests** table has six practice messages in English and Chinese, with empty
+**Category** and **Urgency** columns. The saved **Classify message and assess
+urgency** action reads **Message**, picks a category, and writes an urgency score
+between 0 and 4. The **Reference** table has 40 example results you can browse
+before configuring a key.
+
+1. Install **Smart Actions** from the Eidos Lite plugin marketplace and enable it
+   for your Space. Copy the downloaded file into that Space.
+2. Under **Plugins → Smart Actions → Settings → TypeSafe AI**, save your own API key.
+3. Open the sample in the built-in editor. In **Requests → Try it**, right-click
+   one row and run **Classify message and assess urgency**. Review the proposed
+   results, then confirm to write them back to the row.
+
+To inspect or edit the rules, right-click the sample file and choose **Open with →
+Smart Actions**. The [configuration JSON](https://github.com/eidos-space/eidos-smart-actions-plugin/releases/download/v0.4.1/smart-actions-sample.config.json)
+uses the sample table's field IDs. Running the action uses the TypeSafe AI
+connection. The optional Action Generator connection is for drafting new actions.
+
 ## What you can build
 
 | Input | Judgment | Output |
@@ -24,7 +46,7 @@ do not generate free-form replies or summaries, create records, or add fields.
 
 ## Before you start
 
-Smart Actions 0.4.0 requires plugin API **3.7.0** and uses package format 3.
+Smart Actions requires plugin API **3.7.0** and uses package format 3.
 Upgrade older clients first. CLI Serve does not yet support its action and
 configuration APIs. The plugin API contract is independent of the npm SDK version.
 

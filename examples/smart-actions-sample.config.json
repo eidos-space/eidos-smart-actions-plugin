@@ -1,0 +1,36 @@
+{
+  "actions": [
+    {
+      "connection": "typesafe-default",
+      "icon": "tag",
+      "id": "27e5006b-6d9e-4335-917d-3e61d05035cb",
+      "inputs": [
+        "01a1ffa5-f546-72a4-a4bc-a763e9b1bae1"
+      ],
+      "model": "jev-latest",
+      "outputs": [
+        {
+          "fieldId": "01a1ffa5-f546-72a4-a4bc-a76440cf6a69",
+          "id": "5d083da0-0bcf-4f7e-9090-a39ddbeebfb6",
+          "instructions": "Using the customer message in the Message field of the current record, determine the main request category and select the matching option. Category boundaries: billing covers charges, payments, refunds, invoices and incorrect amounts; sales covers purchase intent, quotes, plan selection, upgrades and renewal enquiries; technical covers bugs, error messages, features that do not work, integrations and performance problems; account covers sign-in, passwords, account details, permissions, cancellation and account security; usage covers how to use the product, how a feature works, and configuration or setup guidance; feedback covers reviews, suggestions, praise and general experience feedback. When a message contains several requests, use the category of the main problem the customer wants solved first; for example, a message asking how to do something while mainly resolving an incorrect charge belongs to billing. Judge only from what the message actually says and do not speculate. If the evidence does not clearly fit one category, choose the option closest to the area the message explicitly mentions.",
+          "type": "choice"
+        },
+        {
+          "criteria": [
+            "0 None: neutral enquiry, suggestion or praise that mentions no problem or blocker; can be handled at any time.",
+            "1 Low: a general usage question or request for information; a delayed answer does not affect normal use and there is no time pressure.",
+            "2 Medium: a clear problem or need that affects normal use, but a workaround exists or it only involves a non-critical scenario.",
+            "3 High: a critical feature is unavailable, important business work is blocked, or the account cannot be accessed; needs prompt priority handling.",
+            "4 Urgent: a service outage, data loss or exposed security risk, or a near-term deadline stated in the message; needs immediate handling."
+          ],
+          "fieldId": "01a1ffa5-f546-72a4-a4bc-a7654e18d670",
+          "id": "623083a6-4c49-48bf-95e9-55ed5694f693",
+          "instructions": "Using only the customer message in the Message field of the current record, judge how urgently it needs to be handled and return the probability-weighted level index across the five levels below (0 to 4, decimals allowed). Base the judgement only on what the message itself states: whether it describes an outage, blocked critical business, a data or security risk, an explicit near-term deadline, and how urgent the customer's tone is. Dissatisfaction alone, or a mention of refunds or failures with no stated impact, is not enough to raise the level. When the message lacks information, use a lower level and never add facts the message does not contain.",
+          "type": "score"
+        }
+      ],
+      "title": "Classify message and assess urgency"
+    }
+  ],
+  "version": 1
+}

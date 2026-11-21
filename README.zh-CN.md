@@ -8,6 +8,23 @@
 
 一个动作可以读取多个字段、写入多个结果。你可以手动配置，也可以描述需求，让 AI 生成可供检查和修改的草稿。
 
+## 用示例试跑
+
+[下载智能操作样本（.eidos）](https://github.com/eidos-space/eidos-smart-actions-plugin/releases/download/v0.4.1/smart-actions-sample.eidos)
+
+**Requests** 表里有 6 条中英文练习消息，**Category**（分类）和 **Urgency**（紧急度）
+初始为空。文件已保存 **Classify message and assess urgency** 动作，读取 **Message**，
+写入分类和 0–4 的紧急度评分。**Reference** 表提供 40 条已填好结果的示例，配置 Key 前也能查看。
+
+1. 在 Eidos Lite 的插件市场安装「智能操作」，在当前空间启用它，再把样本复制到该空间。
+2. 打开 **插件 → 智能操作 → 设置 → TypeSafe AI**，保存你自己的 API Key。
+3. 用内置编辑器打开样本。在 **Requests → Try it** 中右键一条记录，运行
+   **Classify message and assess urgency**。检查预览结果，确认后即可看到两列写回。
+
+要查看或修改规则，右键样本文件，选择「打开方式 → 智能操作」。也可下载
+[动作配置 JSON](https://github.com/eidos-space/eidos-smart-actions-plugin/releases/download/v0.4.1/smart-actions-sample.config.json)，
+里面的字段 ID 对应该样本。试跑只需要 TypeSafe AI 连接，Action Generator 用于生成新动作。
+
 ## 可以做什么
 
 | 输入 | 判断 | 输出 |
@@ -21,7 +38,7 @@
 
 ## 使用前准备
 
-Smart Actions 0.4.0 要求插件 API **3.7.0**，安装包使用格式 3，旧客户端需要先升级。
+Smart Actions 要求插件 API **3.7.0**，安装包使用格式 3，旧客户端需要先升级。
 CLI Serve 尚不支持所需的动作和配置接口。插件 API 契约版本与 npm SDK 版本独立。
 
 - **Eidos Lite 0.29.0 或更新版本**，支持插件 API 3.7.0。
