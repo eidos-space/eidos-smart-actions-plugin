@@ -8,6 +8,8 @@
 
 一个动作可以读取多个字段、写入多个结果。你可以手动配置，也可以描述需求，让 AI 生成可供检查和修改的草稿。
 
+![智能操作流程示意。选中一条记录，右键运行预设动作，确认预览后自动写回分类和紧急度。](docs/smart-actions-demo.svg)
+
 ## 用示例试跑
 
 [下载智能操作样本（.eidos）](https://github.com/eidos-space/eidos-smart-actions-plugin/releases/download/v0.4.2/smart-actions-sample.eidos)

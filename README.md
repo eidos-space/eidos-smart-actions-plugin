@@ -10,6 +10,8 @@ the results back to your `.eidos` file.
 Create reusable actions by hand, or describe what you need and review an
 AI-generated draft. One action can read multiple fields and produce multiple results.
 
+![Smart Actions demo showing a selected row, its right-click action, the review step, and results written into Category and Urgency.](docs/smart-actions-demo.svg)
+
 ## Try it with a sample
 
 [Download the Smart Actions sample (.eidos)](https://github.com/eidos-space/eidos-smart-actions-plugin/releases/download/v0.4.2/smart-actions-sample.eidos)
