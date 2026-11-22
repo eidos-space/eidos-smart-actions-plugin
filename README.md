@@ -10,7 +10,7 @@ the results back to your `.eidos` file.
 Create reusable actions by hand, or describe what you need and review an
 AI-generated draft. One action can read multiple fields and produce multiple results.
 
-![Smart Actions demo showing a selected row, its right-click action, the review step, and results written into Category and Urgency.](docs/smart-actions-demo.svg)
+![Select a row, run Smart Actions from the right-click menu, and see Category and Urgency filled in.](docs/smart-actions-demo.svg)
 
 ## Try it with a sample
 
@@ -26,8 +26,8 @@ before configuring a key.
    for your Space. Copy the downloaded file into that Space.
 2. Under **Plugins → Smart Actions → Settings → TypeSafe AI**, save your own API key.
 3. Open the sample in the built-in editor. In **Requests → Try it**, right-click
-   one row and run **Classify message and assess urgency**. Review the proposed
-   results, then confirm to write them back to the row.
+   one row and run **Classify message and assess urgency**. The action fills in
+   **Category** and **Urgency** for that row.
 
 To inspect or edit the rules, right-click the sample file and choose **Open with →
 Smart Actions**. The [configuration JSON](https://github.com/eidos-space/eidos-smart-actions-plugin/releases/download/v0.4.2/smart-actions-sample.config.json)

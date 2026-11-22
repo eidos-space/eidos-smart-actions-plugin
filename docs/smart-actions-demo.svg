@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="768" height="328" viewBox="0 0 768 328" role="img" aria-labelledby="demo-title demo-desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="768" height="318" viewBox="0 0 768 318" role="img" aria-labelledby="demo-title demo-desc">
   <title id="demo-title">Smart Actions writes a classification and urgency score to a selected row</title>
-  <desc id="demo-desc">Select the duplicate charge request, open the row context menu, and run Classify message and assess urgency. Review the suggested values and apply them. The row receives billing in Category and 2.5 in Urgency.</desc>
+  <desc id="demo-desc">Select the duplicate charge request and run Classify message and assess urgency from the right-click menu. The action writes billing in Category and 2.5 in Urgency.</desc>
   <defs>
     <filter id="popover-shadow" x="-15%" y="-20%" width="130%" height="155%">
       <feDropShadow dx="0" dy="5" stdDeviation="8" flood-color="#1f383f" flood-opacity=".17"/>
@@ -10,20 +10,16 @@
       .label { font-weight: 650; }
       .muted { fill: #52646a; }
       .small { font-size: 13px; }
-      .ring, .cursor, .menu, .review, .phase { opacity: 0; }
+      .ring, .cursor, .menu, .phase { opacity: 0; }
       .selected, .results { opacity: 1; }
 
       @media (prefers-reduced-motion: no-preference) {
-        .selected { animation: select-row 10s linear infinite; }
-        .cursor { animation: move-pointer 10s ease-in-out infinite; }
-        .ring { animation: show-right-click 10s linear infinite; }
-        .menu { animation: show-menu 10s linear infinite; }
-        .review { animation: show-review 10s linear infinite; }
-        .results { animation: show-results 10s linear infinite; }
-        .phase-select { animation: select-step 10s linear infinite; }
-        .phase-menu { animation: show-menu 10s linear infinite; }
-        .phase-review { animation: show-review 10s linear infinite; }
-        .phase-results { animation: show-results 10s linear infinite; }
+        .selected { animation: select-row 8s linear infinite; }
+        .cursor { animation: move-pointer 8s ease-in-out infinite; }
+        .ring { animation: show-right-click 8s linear infinite; }
+        .menu, .phase-menu { animation: show-menu 8s linear infinite; }
+        .results, .phase-results { animation: show-results 8s linear infinite; }
+        .phase-select { animation: select-step 8s linear infinite; }
       }
 
       @keyframes select-row {
@@ -31,41 +27,33 @@
         12%, 95% { opacity: 1; }
       }
       @keyframes show-right-click {
-        0%, 22%, 30%, 100% { opacity: 0; }
-        24% { opacity: 1; }
+        0%, 27%, 35%, 100% { opacity: 0; }
+        29% { opacity: 1; }
       }
       @keyframes show-menu {
-        0%, 24%, 48%, 100% { opacity: 0; }
-        27%, 45% { opacity: 1; }
-      }
-      @keyframes show-review {
-        0%, 48%, 77%, 100% { opacity: 0; }
-        52%, 74% { opacity: 1; }
+        0%, 29%, 61%, 100% { opacity: 0; }
+        32%, 58% { opacity: 1; }
       }
       @keyframes show-results {
-        0%, 75%, 100% { opacity: 0; }
-        78%, 96% { opacity: 1; }
+        0%, 62%, 100% { opacity: 0; }
+        66%, 96% { opacity: 1; }
       }
       @keyframes select-step {
-        0%, 23% { opacity: 1; }
-        26%, 100% { opacity: 0; }
+        0%, 28% { opacity: 1; }
+        31%, 100% { opacity: 0; }
       }
       @keyframes move-pointer {
         0% { opacity: 0; transform: translate(94px, 166px); }
         4% { opacity: 1; transform: translate(94px, 166px); }
         11%, 14% { opacity: 1; transform: translate(48px, 125px); }
-        24%, 28% { opacity: 1; transform: translate(202px, 136px); }
-        37%, 46% { opacity: 1; transform: translate(532px, 219px); }
-        48% { opacity: 0; transform: translate(532px, 219px); }
-        54% { opacity: 0; transform: translate(470px, 214px); }
-        59% { opacity: 1; transform: translate(470px, 214px); }
-        69%, 75% { opacity: 1; transform: translate(539px, 228px); }
-        81%, 100% { opacity: 0; transform: translate(572px, 187px); }
+        29%, 33% { opacity: 1; transform: translate(202px, 136px); }
+        46%, 58% { opacity: 1; transform: translate(532px, 173px); }
+        64%, 100% { opacity: 0; transform: translate(532px, 173px); }
       }
     </style>
   </defs>
 
-  <rect x=".5" y=".5" width="767" height="327" rx="16" fill="#f5f8f9" stroke="#d8e2e5"/>
+  <rect x=".5" y=".5" width="767" height="317" rx="16" fill="#f5f8f9" stroke="#d8e2e5"/>
   <g fill="none" stroke="#496067" stroke-linecap="round" stroke-width="1.5">
     <rect x="25" y="22" width="17" height="16" rx="3"/>
     <path d="M25 28h17m-11 0v10m5-10v10"/>
@@ -105,26 +93,10 @@
 
   <circle class="ring" cx="202" cy="136" r="12" fill="none" stroke="#16796e" stroke-width="2"/>
   <g class="menu">
-    <rect x="199" y="147" width="350" height="96" rx="10" fill="#fff" stroke="#d5dfe2" filter="url(#popover-shadow)"/>
-    <text class="small muted" x="216" y="169">Row actions</text>
-    <text x="245" y="192">Copy row</text>
-    <path d="M217 185h11v10h-11zm3-3h11v9" fill="none" stroke="#64777c" stroke-width="1.4" stroke-linejoin="round"/>
-    <rect x="207" y="202" width="334" height="32" rx="6" fill="#e3f3ef"/>
-    <path d="M223 208v5m0 8v5m-9-9h5m8 0h5m-15-6 3 3m6 6 3 3m0-12-3 3m-6 6-3 3" fill="none" stroke="#16796e" stroke-width="1.4" stroke-linecap="round"/>
-    <text class="label" x="245" y="223">Classify message and assess urgency</text>
-  </g>
-
-  <g class="review">
-    <rect x="198" y="104" width="372" height="146" rx="12" fill="#fff" stroke="#d5dfe2" filter="url(#popover-shadow)"/>
-    <text class="label" x="217" y="130">Review proposed changes</text>
-    <text class="muted small" x="217" y="156">Category</text>
-    <text class="muted small" x="389" y="156">Urgency</text>
-    <rect x="216" y="167" width="154" height="28" rx="6" fill="#e9f6f4"/>
-    <rect x="388" y="167" width="162" height="28" rx="6" fill="#e9f6f4"/>
-    <text class="label" x="228" y="186">billing</text>
-    <text class="label" x="400" y="186">2.5</text>
-    <rect x="466" y="208" width="84" height="29" rx="6" fill="#16796e"/>
-    <text class="label small" x="508" y="227" text-anchor="middle" style="fill:#fff">Apply</text>
+    <rect x="199" y="147" width="350" height="48" rx="10" fill="#fff" stroke="#d5dfe2" filter="url(#popover-shadow)"/>
+    <rect x="207" y="155" width="334" height="32" rx="6" fill="#e3f3ef"/>
+    <path d="M223 162v5m0 8v5m-9-9h5m8 0h5m-15-6 3 3m6 6 3 3m0-12-3 3m-6 6-3 3" fill="none" stroke="#16796e" stroke-width="1.4" stroke-linecap="round"/>
+    <text class="label" x="245" y="176">Classify message and assess urgency</text>
   </g>
 
   <g class="cursor" aria-hidden="true">
@@ -132,14 +104,12 @@
   </g>
 
   <g aria-hidden="true">
-    <path d="M25 277h169m14 0h169m14 0h169m14 0h169" stroke="#d6e2e4" stroke-width="3" stroke-linecap="round"/>
-    <path class="phase phase-select" d="M25 277h169" stroke="#16796e" stroke-width="3" stroke-linecap="round"/>
-    <path class="phase phase-menu" d="M208 277h169" stroke="#16796e" stroke-width="3" stroke-linecap="round"/>
-    <path class="phase phase-review" d="M391 277h169" stroke="#16796e" stroke-width="3" stroke-linecap="round"/>
-    <path class="phase phase-results" d="M574 277h169" stroke="#16796e" stroke-width="3" stroke-linecap="round"/>
-    <text class="small label" x="24" y="305">Select a row</text>
-    <text class="small label" x="207" y="305">Right-click and run</text>
-    <text class="small label" x="390" y="305">Review and apply</text>
-    <text class="small label" x="573" y="305">See the results</text>
+    <path d="M25 274h230m14 0h230m14 0h230" stroke="#d6e2e4" stroke-width="3" stroke-linecap="round"/>
+    <path class="phase phase-select" d="M25 274h230" stroke="#16796e" stroke-width="3" stroke-linecap="round"/>
+    <path class="phase phase-menu" d="M269 274h230" stroke="#16796e" stroke-width="3" stroke-linecap="round"/>
+    <path class="phase phase-results" d="M513 274h230" stroke="#16796e" stroke-width="3" stroke-linecap="round"/>
+    <text class="small label" x="24" y="299">Select a row</text>
+    <text class="small label" x="268" y="299">Right-click and run</text>
+    <text class="small label" x="512" y="299">See the results</text>
   </g>
 </svg>

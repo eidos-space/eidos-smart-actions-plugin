@@ -8,7 +8,7 @@
 
 一个动作可以读取多个字段、写入多个结果。你可以手动配置，也可以描述需求，让 AI 生成可供检查和修改的草稿。
 
-![智能操作流程示意。选中一条记录，右键运行预设动作，确认预览后自动写回分类和紧急度。](docs/smart-actions-demo.svg)
+![智能操作流程示意。选中一条记录，右键运行动作，自动写回分类和紧急度。](docs/smart-actions-demo.svg)
 
 ## 用示例试跑
 
@@ -21,7 +21,7 @@
 1. 在 Eidos Lite 的插件市场安装「智能操作」，在当前空间启用它，再把样本复制到该空间。
 2. 打开 **插件 → 智能操作 → 设置 → TypeSafe AI**，保存你自己的 API Key。
 3. 用内置编辑器打开样本。在 **Requests → Try it** 中右键一条记录，运行
-   **Classify message and assess urgency**。检查预览结果，确认后即可看到两列写回。
+   **Classify message and assess urgency**。动作会自动填入该行的分类和紧急度。
 
 要查看或修改规则，右键样本文件，选择「打开方式 → 智能操作」。也可下载
 [动作配置 JSON](https://github.com/eidos-space/eidos-smart-actions-plugin/releases/download/v0.4.2/smart-actions-sample.config.json)，
