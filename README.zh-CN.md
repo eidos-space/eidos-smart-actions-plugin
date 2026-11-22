@@ -10,7 +10,7 @@
 
 ## 用示例试跑
 
-[下载智能操作样本（.eidos）](https://github.com/eidos-space/eidos-smart-actions-plugin/releases/download/v0.4.1/smart-actions-sample.eidos)
+[下载智能操作样本（.eidos）](https://github.com/eidos-space/eidos-smart-actions-plugin/releases/download/v0.4.2/smart-actions-sample.eidos)
 
 **Requests** 表里有 6 条中英文练习消息，**Category**（分类）和 **Urgency**（紧急度）
 初始为空。文件已保存 **Classify message and assess urgency** 动作，读取 **Message**，
@@ -22,7 +22,7 @@
    **Classify message and assess urgency**。检查预览结果，确认后即可看到两列写回。
 
 要查看或修改规则，右键样本文件，选择「打开方式 → 智能操作」。也可下载
-[动作配置 JSON](https://github.com/eidos-space/eidos-smart-actions-plugin/releases/download/v0.4.1/smart-actions-sample.config.json)，
+[动作配置 JSON](https://github.com/eidos-space/eidos-smart-actions-plugin/releases/download/v0.4.2/smart-actions-sample.config.json)，
 里面的字段 ID 对应该样本。试跑只需要 TypeSafe AI 连接，Action Generator 用于生成新动作。
 
 ## 可以做什么

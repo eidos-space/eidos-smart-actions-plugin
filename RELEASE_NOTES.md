@@ -1,7 +1,6 @@
 ## What's new
 
-- Add a downloadable `.eidos` sample with a saved action, six practice requests and 40 reference results.
-- Add an English and Simplified Chinese quickstart and a downloadable copy of the sample's action configuration.
+- Narrow the columns in both sample grids so Message, Category and Urgency fit together in the default Lite window.
 
 ## Requirements
 

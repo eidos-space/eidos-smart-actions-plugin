@@ -5,7 +5,7 @@
   },
   "id": "eidos.smart-actions",
   "name": "%plugin.name%",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "icon": {
     "paths": [
       "M12 3v4m0 10v4M3 12h4m10 0h4M6 6l3 3m6 6 3 3M6 18l3-3m6-6 3-3"

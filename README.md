@@ -12,7 +12,7 @@ AI-generated draft. One action can read multiple fields and produce multiple res
 
 ## Try it with a sample
 
-[Download the Smart Actions sample (.eidos)](https://github.com/eidos-space/eidos-smart-actions-plugin/releases/download/v0.4.1/smart-actions-sample.eidos)
+[Download the Smart Actions sample (.eidos)](https://github.com/eidos-space/eidos-smart-actions-plugin/releases/download/v0.4.2/smart-actions-sample.eidos)
 
 The **Requests** table has six practice messages in English and Chinese, with empty
 **Category** and **Urgency** columns. The saved **Classify message and assess
@@ -28,7 +28,7 @@ before configuring a key.
    results, then confirm to write them back to the row.
 
 To inspect or edit the rules, right-click the sample file and choose **Open with →
-Smart Actions**. The [configuration JSON](https://github.com/eidos-space/eidos-smart-actions-plugin/releases/download/v0.4.1/smart-actions-sample.config.json)
+Smart Actions**. The [configuration JSON](https://github.com/eidos-space/eidos-smart-actions-plugin/releases/download/v0.4.2/smart-actions-sample.config.json)
 uses the sample table's field IDs. Running the action uses the TypeSafe AI
 connection. The optional Action Generator connection is for drafting new actions.
 
